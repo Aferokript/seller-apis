@@ -131,7 +131,25 @@ def create_prices(watch_remnants, offer_ids):
 
 
 def price_conversion(price: str) -> str:
-    """Преобразовать цену. Пример: 5'990.00 руб. -> 5990"""
+     """Преобразовать цену
+
+    Функция получает на вход цену на товар в формате str и возвращает отформатированную цену
+
+    Args:
+         price (str): Цена товара
+
+    Returns:
+        str: Отформатированая цена товара
+
+    Raises:
+           TypeError
+
+    Examples:
+             price_of_phone = 5'900.00
+             price_conversion(price_of_phone)
+             5900
+    """
+
     return re.sub("[^0-9]", "", price.split(".")[0])
 
 
