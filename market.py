@@ -11,6 +11,29 @@ logger = logging.getLogger(__file__)
 
 
 def get_product_list(page, campaign_id, access_token):
+    '''Получить список товаров
+
+    Функция делает запрос к API яндекс маркета и в ответ получает список товаров
+    Урл строится из идентификатора вашего магазина ( campaign_id ), API-Токена и пагинации
+
+    Args:
+        page (int): Пагинация, с какого места выдавать следующую порцию товаров
+        campaign_id (int): Id Компании
+        access_token (str): API_Token продавца
+
+    Returns:
+        list: список с товарами
+
+    Raises:
+        TypeError: Аргументы должны быть в формате int
+        requests.exceptions.HTTPError: При ошибке HTTP запроса
+    Example:
+
+        get_product_list(page=1, campaign_id='Ваш_id, access_token='<KEY>')
+        список товаров.
+
+    '''
+
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -30,6 +53,28 @@ def get_product_list(page, campaign_id, access_token):
 
 
 def update_stocks(stocks, campaign_id, access_token):
+    ''' Обновляет товар
+
+    Функция обновляет остатки товара
+
+    Args:
+        stocks (list): Список товаров
+        campaign_id (int): Ваш идентификатор продавца
+        access_token (str): API-Токен продавца
+
+    Returns:
+        dict: Результат операции
+
+    Raises:
+        TypeError: stocks не является списком. Остальные аргументы должны быть в формате int
+        requests.exceptions.HTTPError: При ошибке HTTP запроса
+
+    Example:
+        update_stocks(list, Ваш идентификатор, Ваш Токен)
+        Результат операции
+
+    '''
+
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -46,6 +91,28 @@ def update_stocks(stocks, campaign_id, access_token):
 
 
 def update_price(prices, campaign_id, access_token):
+    '''Обновляет цену
+
+    Функция обновляет цену товара
+
+    Args:
+        prices (list): Список товаров и цен
+        campaign_id (int): Ваш идентификатор продавца
+        access_token (str): Ваш API-Токен
+
+    Returns:
+        dict: Результат операции
+
+    Raises:
+        TypeError: prices не является списком. Остальные аргументы должны быть в формате int
+        requests.exceptions.HTTPError: При ошибке HTTP запроса
+
+    Example:
+        update_price(list, campaign_id, Ваш_Токен)
+        Результат операции
+
+    '''
+
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -62,7 +129,27 @@ def update_price(prices, campaign_id, access_token):
 
 
 def get_offer_ids(campaign_id, market_token):
-    """Получить артикулы товаров Яндекс маркета"""
+    """Получить артикулы товаров Яндекс маркета
+
+    Функция принимает идентификатор продавца, по нему находит товары и возвращает их арктикулы
+
+    Args:
+        campaign_id (int): Идентификатор продавца
+        market_token (str): Токен подтверждения прав
+
+    Returns:
+        list: Список с арктикулами товаров
+
+    Raises:
+        TypeError: prices не является списком или market_token не является строкой
+        requests.exceptions.HTTPError: При ошибке HTTP запроса
+
+    Example:
+        get_offer_ids(campaign_id, market_token)
+        Список с арктикулами товаров
+
+    """
+
     page = ""
     product_list = []
     while True:
@@ -78,7 +165,29 @@ def get_offer_ids(campaign_id, market_token):
 
 
 def create_stocks(watch_remnants, offer_ids, warehouse_id):
-    # Уберем то, что не загружено в market
+    '''Уберем то, что не загружено в market
+
+    Функция создает список, генерирует время для API, проходится по словарю
+    и в случае успеха добавляет товары
+
+    Args:
+        watch_remnants (list): список с товаром
+        offer_ids (int) идентификатор продавца
+        warehouse_id (int) числовой идентификатор склада
+
+    Returns:
+        list: список того что не загружено
+
+    Raises:
+        TypeError: watch_remnants пустой или не является списком. Остальные аргументы в формате int
+        requests.exceptions.HTTPError: При ошибке HTTP запроса
+
+    Example:
+        create_stocks(watch_remnants, offer_ids, warehouse_id)
+        Список того что не загружно в market
+
+    '''
+
     stocks = list()
     date = str(datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z")
     for watch in watch_remnants:
@@ -104,7 +213,7 @@ def create_stocks(watch_remnants, offer_ids, warehouse_id):
                 }
             )
             offer_ids.remove(str(watch.get("Код")))
-    # Добавим недостающее из загруженного:
+
     for offer_id in offer_ids:
         stocks.append(
             {
@@ -123,6 +232,27 @@ def create_stocks(watch_remnants, offer_ids, warehouse_id):
 
 
 def create_prices(watch_remnants, offer_ids):
+    '''Задать цену товару
+
+    Функция задает цену вашим товарам
+
+    Args:
+        watch_remnants (list): Список товаров
+        offer_ids (list): Список уже существующих товаров
+
+    Returns:
+        list: Список с товарами которые мы загрузили
+
+    Raises:
+        TypeError: watch_remnants пустой или не является списком. Остальные аргументы в формате int
+        requests.exceptions.HTTPError: При ошибке HTTP запроса
+
+    Example:
+        create_prices(watch_remnants, offer_ids)
+        список товаров которым задали цену
+
+    '''
+
     prices = []
     for watch in watch_remnants:
         if str(watch.get("Код")) in offer_ids:
@@ -143,6 +273,25 @@ def create_prices(watch_remnants, offer_ids):
 
 
 async def upload_prices(watch_remnants, campaign_id, market_token):
+    """Загрузить цены товаров в Яндекс Маркет
+
+    Функция получает список товаров, фильтрует те, которые уже есть на маркетплейсе,
+    и отправляет их цены в API Яндекс Маркета. Отправка происходит порциями по 500 товаров.
+
+    Args:
+        watch_remnants (list): Список товаров с ключами "Код" и "Цена"
+        campaign_id (int): ID кампании
+        market_token (str): API-токен
+
+    Returns:
+        list: Отправленные цены
+
+    Raises:
+        requests.exceptions.HTTPError: При ошибке HTTP запроса
+
+    Example:
+     upload_prices([{"Код": "123", "Цена": "5000"}], 123, "token")
+    """
     offer_ids = get_offer_ids(campaign_id, market_token)
     prices = create_prices(watch_remnants, offer_ids)
     for some_prices in list(divide(prices, 500)):
@@ -151,6 +300,28 @@ async def upload_prices(watch_remnants, campaign_id, market_token):
 
 
 async def upload_stocks(watch_remnants, campaign_id, market_token, warehouse_id):
+    """Загрузить остатки товаров в Яндекс Маркет
+
+    Функция получает список товаров, фильтрует те, которые уже есть на маркетплейсе,
+    и отправляет их остатки в API Яндекс Маркета. Отправка происходит порциями по 2000 товаров.
+    Возвращает два списка: товары с ненулевым остатком и все отправленные остатки.
+
+    Args:
+        watch_remnants (list): Список товаров с ключами "Код" и "Количество"
+        campaign_id (int): ID кампании
+        market_token (str): API-токен
+        warehouse_id (int): ID склада
+
+    Returns:
+        tuple: (товары с ненулевым остатком, все отправленные остатки)
+
+    Raises:
+        requests.exceptions.HTTPError: При ошибке HTTP запроса
+
+    Example:
+       upload_stocks([{"Код": "123", "Количество": 10}], 123, "token", 456)
+    """
+
     offer_ids = get_offer_ids(campaign_id, market_token)
     stocks = create_stocks(watch_remnants, offer_ids, warehouse_id)
     for some_stock in list(divide(stocks, 2000)):
@@ -159,7 +330,6 @@ async def upload_stocks(watch_remnants, campaign_id, market_token, warehouse_id)
         filter(lambda stock: (stock.get("items")[0].get("count") != 0), stocks)
     )
     return not_empty, stocks
-
 
 def main():
     env = Env()
