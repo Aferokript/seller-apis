@@ -4,8 +4,8 @@ def get_product_list(last_id, client_id, seller_token):
     Функция отправляет запрос к API Ozon и возвращает список товаров с пагинацией.
 
     Args:
-        last_id (int): Id последнего товара
-        client_id (int): Id клиента
+        last_id (str): Id последнего товара
+        client_id (str): Публичный идентификатор продавца
         seller_token (str): Api-токен продавца
 
     Returns:
@@ -43,8 +43,8 @@ def get_offer_ids(client_id, seller_token):
     Функция получает все товары и извлекает из них артикулы.
 
     Args:
-        client_id (int): Id клиента
-        seller_token (str): Api-токен продавца
+        client_id (str): Id клиента
+        seller_token (str): Публичный идентификатор продавца
 
     Returns:
         list: Артикулы всех товаров
@@ -79,7 +79,7 @@ def update_price(prices: list, client_id, seller_token):
 
     Args:
         prices (list): Список с товарами и ценами
-        client_id (int): Id клиента
+        client_id (str): Публичный идентификатор продавца
         seller_token (str): Api-токен продавца
 
     Returns:
@@ -111,7 +111,7 @@ def update_stocks(stocks: list, client_id, seller_token):
 
     Args:
         stocks (list): Список с товарами и остатками
-        client_id (int): Id клиента
+        client_id (str): Публичный идентификатор продавца
         seller_token (str): Api-токен продавца
 
     Returns:
@@ -289,7 +289,7 @@ async def upload_prices(watch_remnants, client_id, seller_token):
 
     Args:
         watch_remnants (list): Список словарей с ценами
-        client_id (int): Id клиента
+        client_id (str): Публичный идентификатор продавца
         seller_token (str): Api-токен продавца
 
     Returns:
@@ -316,7 +316,7 @@ async def upload_stocks(watch_remnants, client_id, seller_token):
 
     Args:
         watch_remnants (list): Список словарей с остатками
-        client_id (int): Id клиента
+        client_id (str): Публичный идентификатор продавца
         seller_token (str): Api-токен продавца
 
     Returns:
